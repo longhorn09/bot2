@@ -1,6 +1,9 @@
 /**
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License.
+ * This file contains logic to support a few commands including:
+ * help, vendor
+ * 
+ * reference doc for api.file_upload: https://github.com/howdyai/botkit/issues/29
+ * base ref:                          https://botkit.ai/docs/v0/readme-web.html
  */
 
 module.exports = function(controller) {
@@ -18,7 +21,6 @@ module.exports = function(controller) {
         ]
       });
     });
-
   
     //  Help RegEx
     controller.hears(/^[hH][eE][lL][pP]\s*$/, ['message','direct_message'], async function(bot, message) {
