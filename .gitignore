@@ -1,0 +1,12 @@
+config.js*
+node_modules
+package-lock.json
+*.swp
+*.env
+.DS_Store
+build
+npm-debug.log
+*.csv
+*.xls*
+settings.json
+*.tmp
