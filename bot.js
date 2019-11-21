@@ -49,6 +49,7 @@ if (false) {
 /**
  * Initialization of SlackAdapter, including passing of authentication tokens
  * And as well the REDIRECT_URI
+ * API documentation: https://botkit.ai/docs/v4/reference/slack.html#SlackAdapterOptions
  */
 
 const adapter = new SlackAdapter({
