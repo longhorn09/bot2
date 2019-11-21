@@ -39,7 +39,11 @@ if (false) {
              `clientSigningSecret ${process.env.CLIENT_SIGNING_SECRET}\n` +
              `redirectUri: ${process.env.REDIRECT_URI}\n` + 
              `verificationToken: ${process.env.VERIFICATION_TOKEN}\n` + 
-             `redirectUri: ${process.env.REDIRECT_URI}\n`);
+             `redirectUri: ${process.env.REDIRECT_URI}\n` + 
+             `oath access token: ${process.env.OATH_ACCESS_TOKEN}\n` +
+             `bot token: ${process.env.BOT_TOKEN}`);
+
+
 }
 
 /**

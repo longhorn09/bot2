@@ -4,39 +4,44 @@
  */
 
 module.exports = function(controller) {
-
-    controller.hears('sample','message,direct_message', async(bot, message) => {
-        await bot.reply(message, 'I heard a sample message.');
-    });
-
-    controller.hears('samp2','message,direct_message',async(bot,message) => {
+    //  Vendors RegEx
+    controller.hears(/^[vV][eE][nN][dD][oO][rR]([sS])?\s*$/, ['message','direct_message'], async function(bot, message) {
       await bot.replyEphemeral(message,{
         blocks: [
         {
           "type":"section",
           "text":{
             "type":"mrkdwn",
-            "text":"markdown code below: ```code in markdown```"
+            "text": "*Valid vendors*\n```akamai\namazon\ncenturylink\ndatadog\nlevel3\nrackspace```"
           }
-        }/*,
+        }
+        ]
+      });
+    });
+
+  
+    //  Help RegEx
+    controller.hears(/^[hH][eE][lL][pP]\s*$/, ['message','direct_message'], async function(bot, message) {
+      await bot.replyEphemeral(message,{
+        blocks: [
         {
-          "type":"divider"
+          "type":"section",
+          "text":{
+            "type":"mrkdwn",
+            "text": "*Syntax:*  `<command> <vendor> <YYYYMM>`"
+          }
+        },
+        {
+           "type": "divider"
         },
         {
           "type":"section",
           "text":{
             "type":"mrkdwn",
-            "text":"hey this is ```2nd code in markdown```"
+            "text": "*Example*\n```invoice akamai 201908\nusage akamai 201907```"
           }
-        }*/
+        }
         ]
-
       });
     });
-  
-    /*
-    controller.on('message,direct_message', async(bot, message) => {
-        await bot.reply(message, `Echo: ${ message.text }`);
-    });
-    */
 }
