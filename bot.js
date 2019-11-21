@@ -81,14 +81,6 @@ if (process.env.CMS_URI) {
     }));
 }
 
-/**
- * Adds a listener, specifically listens for the word 'hi' and replies back
- */
-controller.hears('hi','direct_message',(bot,message)=> {
-  //await bot.reply(message,'Hiya back!');
-  bot.reply(message,'hiya back!');
-});
-
 // Once the bot has booted up its internal services, you can use them to do stuff.
 controller.ready(() => {
     // load traditional developer-created local custom feature modules
@@ -98,10 +90,7 @@ controller.ready(() => {
     if (controller.plugins.cms) {
         controller.on('message,direct_message', async (bot, message) => {
             let results = false;
-            //logger.trace(`in controller.ready(): ${message.toString()}`);
-            //console.log(`message: ${message}`);
-            //results = await controller.plugins.cms.testTrigger(bot, message);
-            results = false ;
+            results = await controller.plugins.cms.testTrigger(bot, message);
             if (results !== false) {
                 // do not continue middleware!
                 return false;
@@ -177,13 +166,14 @@ async function getBotUserByTeam(teamId) {
 }
 
 // Log every message received
+/*
 controller.middleware.receive.use((bot, message, next) => {
      // log it
-     //console.log('RECEIVED: ', message);
-     //logger.trace(`received: ${message.toString()}`);
+     console.log('RECEIVED: ', message);
      // modify the message
      message.logged = true;
 
      // continue processing the message
      next();
 });
+*/
