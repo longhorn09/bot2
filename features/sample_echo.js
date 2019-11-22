@@ -4,6 +4,7 @@
  * 
  * reference doc for api.file_upload: https://github.com/howdyai/botkit/issues/29
  * base ref:                          https://botkit.ai/docs/v0/readme-web.html
+ * slack working with files         : https://api.slack.com/messaging/files/uploading
  */
 "use strict";
 module.exports = function(controller) {
