@@ -26,11 +26,13 @@ module.exports = function(controller) {
     });
     */
     controller.on('direct_mention', async(bot, message) => {
-        await bot.reply(message, `I heard a direct mention that said "${ message.text }"`);
+          console.log(`heard direct mention ${message.text}`);
+ //       await bot.reply(message, `I heard a direct mention that said "${ message.text }"`);
     });
 
     controller.on('mention', async(bot, message) => {
-        await bot.reply(message, `You mentioned me when you said "${ message.text }"`);
+          console.log(`bot was mentioned ${message.text}`);
+//        await bot.reply(message, `You mentioned me when you said "${ message.text }"`);
     });
 /*
     controller.hears('ephemeral', 'message,direct_message', async(bot, message) => {
