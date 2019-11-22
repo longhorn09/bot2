@@ -49,9 +49,7 @@ const adapter = new SlackAdapter({
     clientSecret: process.env.CLIENT_SECRET,
     scopes: ['bot','files:write:user','files:read','commands'], //https://api.slack.com/scopes, do not include files:write, will get error
     redirectUri: process.env.REDIRECT_URI,
-    // functions required for retrieving team-specific info
-    // for use in multi-team apps
-    getTokenForTeam: getTokenForTeam,
+    getTokenForTeam: getTokenForTeam, //functions required for retrieving team-specific info, for use in multi-team apps
     getBotUserByTeam: getBotUserByTeam,
 });
 
@@ -60,7 +58,6 @@ adapter.use(new SlackEventMiddleware());
 
 // Use SlackMessageType middleware to further classify messages as direct_message, direct_mention, or mention
 adapter.use(new SlackMessageTypeMiddleware());
-
 
 const controller = new Botkit({
     webhook_uri: '/api/messages',
@@ -160,7 +157,7 @@ async function getBotUserByTeam(teamId) {
 }
 
 // Log every message received
-/*
+///*
 controller.middleware.receive.use((bot, message, next) => {
      // log it
      console.log('RECEIVED: ', message);
@@ -170,4 +167,4 @@ controller.middleware.receive.use((bot, message, next) => {
      // continue processing the message
      next();
 });
-*/
+//*/
