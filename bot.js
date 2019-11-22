@@ -41,7 +41,6 @@ if (false) {
  * And as well the REDIRECT_URI
  * API documentation: https://botkit.ai/docs/v4/reference/slack.html#SlackAdapterOptions
  */
-
 const adapter = new SlackAdapter({
     enable_incomplete: false, // REMOVE THIS OPTION AFTER YOU HAVE CONFIGURED YOUR APP!
     verificationToken: process.env.VERIFICATION_TOKEN, //parameters used to secure webhook endpoint
