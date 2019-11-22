@@ -11,10 +11,42 @@ module.exports = function(controller) {
     const path = require('path');
       
  
-    controller.hears(/^testpdf\s*$/, ['message','direct_message'], async function(bot, message) {
+    // file_created event handler  
+    controller.on('file_created',  async function(bot, message) {
+      let user_id = null,
+          channel_id = null,
+          file_id=null;
+
+      file_id = message['file_id'];
+      user_id = message['user_id'];
+      channel_id = message['channel'];
+      console.log(`file: ${file_id}, user_id: ${user_id}, channel_id: ${channel_id}`);
+    });  //end file_created handler
+
+    /**
+     * Call of Slack API files.list
+     */
+    controller.hears(/^\**filelist\**\s*$/, ['message','direct_message'], async function(bot, message) {
+      let user_id = null,channel_id=null;
+
+      user_id = message['incoming_message']['from']['id'];
+      channel_id = message['incoming_message']['channelData']['channel'];
+      console.log(`** in files.list call from ${user_id} in channel ${channel_id}`);  
+
+      bot.api.files.list({       //https://api.slack.com/methods/files.list 
+        token: process.env.OATH_ACCESS_TOKEN,
+        page: 1
+      }, (err,res) => {
+        console.log(JSON.stringify(res));
+        if (err) {
+          console.log(`Error encountered during files.list: ${err}`);
+        }
+      });
+    });
+
+    controller.hears(/^\**testpdf\**\s*$/, ['message','direct_message'], async function(bot, message) {
         let fileUploadName = 'testPDF.pdf';
-        //https://stackoverflow.com/questions/47403907/node-js-express-dirname-parent-path-get-wrong
-        let parentDir = path.normalize(__dirname+"/.."); 
+        let parentDir = path.normalize(__dirname+"/.."); //https://stackoverflow.com/questions/47403907/node-js-express-dirname-parent-path-get-wrong
         
         console.log(`${parentDir}/files/${fileUploadName} upload`); 
         bot.api.files.upload({
@@ -36,7 +68,7 @@ module.exports = function(controller) {
   
  
     //  myid RegEx
-    controller.hears(/^myid\s*$/, ['message','direct_message'], async function(bot, message) {
+    controller.hears(/^\**myid\**\s*$/, ['message','direct_message'], async function(bot, message) {
       let user_id = null,channel_id=null;
 
       user_id = message['incoming_message']['from']['id'];
@@ -46,7 +78,7 @@ module.exports = function(controller) {
       /*
       fs.writeFile(__dirname + '/mymsg.json',JSON.stringify(message),(err) => {
         if (err) throw err;
-        console.log('ok');
+        console.log('file written');
       }); 
       */
 
