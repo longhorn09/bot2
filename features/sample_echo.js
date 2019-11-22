@@ -23,12 +23,9 @@ module.exports = function(controller) {
       console.log(`file: ${file_id}, user_id: ${user_id}, channel_id: ${channel_id}`);
     });  //end file_created handler
 
-    /**
-     * Call of Slack API files.list
-     */
+    // Call of Slack API files.list 
     controller.hears(/^\**filelist\**\s*$/, ['message','direct_message'], async function(bot, message) {
       let user_id = null,channel_id=null;
-
       user_id = message['incoming_message']['from']['id'];
       channel_id = message['incoming_message']['channelData']['channel'];
       console.log(`** in files.list call from ${user_id} in channel ${channel_id}`);  
