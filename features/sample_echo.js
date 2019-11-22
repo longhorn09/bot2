@@ -5,7 +5,7 @@
  * reference doc for api.file_upload: https://github.com/howdyai/botkit/issues/29
  * base ref:                          https://botkit.ai/docs/v0/readme-web.html
  */
-
+"use strict";
 module.exports = function(controller) {
     var fs = require('fs');
     const path = require('path');
@@ -37,14 +37,28 @@ module.exports = function(controller) {
  
     //  myid RegEx
     controller.hears(/^myid\s*$/, ['message','direct_message'], async function(bot, message) {
-      console.log(message);
+      let user_id = null,channel_id=null;
+
+      user_id = message['incoming_message']['from']['id'];
+      channel_id = message['incoming_message']['channelData']['channel'];
+        
+      //console.log(message['incoming_message']);
+      /*
+      fs.writeFile(__dirname + '/mymsg.json',JSON.stringify(message),(err) => {
+        if (err) throw err;
+        console.log('ok');
+      }); 
+      */
+
       await bot.replyEphemeral(message,{
         blocks: [
         {
           "type":"section",
           "text":{
             "type":"mrkdwn",
-            "text": "*user_id:* ``"
+            "text": "user_id: `" + user_id + "`\n"
+                    + "channel: `"+ channel_id +"`"
+
           }
         }
         ]
