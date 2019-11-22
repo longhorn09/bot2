@@ -157,14 +157,16 @@ async function getBotUserByTeam(teamId) {
 }
 
 // Log every message received
-///*
+
 controller.middleware.receive.use((bot, message, next) => {
      // log it
-     console.log('RECEIVED: ', message);
+     if (false) {  
+       console.log('RECEIVED: ', message);
+     }
      // modify the message
      message.logged = true;
 
      // continue processing the message
      next();
 });
-//*/
+
