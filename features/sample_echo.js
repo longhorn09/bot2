@@ -35,6 +35,21 @@ module.exports = function(controller) {
     });  // end of testfile response handler
   
  
+    //  myid RegEx
+    controller.hears(/^myid\s*$/, ['message','direct_message'], async function(bot, message) {
+      console.log(message);
+      await bot.replyEphemeral(message,{
+        blocks: [
+        {
+          "type":"section",
+          "text":{
+            "type":"mrkdwn",
+            "text": "*user_id:* ``"
+          }
+        }
+        ]
+      });
+    });
 
     //  Vendors RegEx
     controller.hears(/^[vV][eE][nN][dD][oO][rR]([sS])?\s*$/, ['message','direct_message'], async function(bot, message) {
