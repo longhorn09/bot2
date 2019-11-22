@@ -10,3 +10,4 @@ npm-debug.log
 *.xls*
 settings.json
 *.tmp
+file_created.json
