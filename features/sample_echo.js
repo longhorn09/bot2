@@ -20,7 +20,24 @@ module.exports = function(controller) {
       file_id = message['file_id'];
       user_id = message['user_id'];
       channel_id = message['channel'];
-      console.log(`file: ${file_id}, user_id: ${user_id}, channel_id: ${channel_id}`);
+      //
+      //console.log(`file: ${file_id}, user_id: ${user_id}, channel_id: ${channel_id}`);
+
+      fs.writeFile(__dirname + '/file_created.json',JSON.stringify(message), (err) => {
+        if (err) throw err;
+        console.log(`file for ${file_id} written`);
+      }); 
+
+      console.log('right before bot.api.files.info() call');
+      bot.api.files.info({
+         file: file_id
+      }, (err,res) => {
+        console.log('in callback of files.info()');
+        console.log(res);
+        if (err) {
+          console.log(`Error encountered during files.list: ${err}`);
+        }
+      });
     });  //end file_created handler
 
     // Call of Slack API files.list 
@@ -33,7 +50,8 @@ module.exports = function(controller) {
       bot.api.files.list({       //https://api.slack.com/methods/files.list 
         token: process.env.OATH_ACCESS_TOKEN,
         page: 1
-      }, (err,res) => {
+      }, function(err,res) {
+        console.log('in files.list callback');
         console.log(JSON.stringify(res));
         if (err) {
           console.log(`Error encountered during files.list: ${err}`);
