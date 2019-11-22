@@ -107,7 +107,7 @@ controller.webserver.get('/install/auth', async (req, res) => {
     try {
         const results = await controller.adapter.validateOauthCode(req.query.code);
 
-        console.log('FULL OAUTH DETAILS', results);
+        //console.log('FULL OAUTH DETAILS', results);
 
         // Store token by team in bot state.
         tokenCache[results.team_id] = results.bot.bot_access_token;
