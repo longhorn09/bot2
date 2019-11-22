@@ -16,14 +16,6 @@ const { MongoDbStorage } = require('botbuilder-storage-mongodb');
 
 // Load process.env values from .env file
 require('dotenv').config();
-/*
-const log4js = require('log4js');
-log4js.configure({appenders: {cheese: {type: 'file',filename:'trace.log'}},
-                  categories: {default: {appenders: ['cheese'], level: 'error'}}
-                 });
-var logger = log4js.getLogger();
-logger.level='trace';
-*/
 
 let storage = null;
 if (process.env.MONGO_URI) {
@@ -42,8 +34,6 @@ if (false) {
              `redirectUri: ${process.env.REDIRECT_URI}\n` + 
              `oath access token: ${process.env.OATH_ACCESS_TOKEN}\n` +
              `bot token: ${process.env.BOT_TOKEN}`);
-
-
 }
 
 /**
