@@ -9,7 +9,7 @@ const { Botkit } = require('botkit');
 const { BotkitCMSHelper } = require('botkit-plugin-cms');
 
 // Import a platform-specific adapter for slack.
-
+                // ['commands','bot']
 const { SlackAdapter, SlackMessageTypeMiddleware, SlackEventMiddleware } = require('botbuilder-adapter-slack');
 
 const { MongoDbStorage } = require('botbuilder-storage-mongodb');
@@ -47,7 +47,7 @@ const adapter = new SlackAdapter({
     clientSigningSecret: process.env.CLIENT_SIGNING_SECRET,  
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    scopes: ['bot'],                // ['commands','bot']
+    scopes: ['bot','files:write:user','files:read','commands'], //https://api.slack.com/scopes, do not include files:write, will get error
     redirectUri: process.env.REDIRECT_URI,
     // functions required for retrieving team-specific info
     // for use in multi-team apps
