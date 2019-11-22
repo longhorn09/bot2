@@ -5,7 +5,7 @@
 const { SlackDialog } = require('botbuilder-adapter-slack');
 
 module.exports = function(controller) {
-
+/*
     controller.ready(async () => {
         if (process.env.MYTEAM) {
             let bot = await controller.spawn(process.env.MYTEAM);
@@ -13,16 +13,18 @@ module.exports = function(controller) {
             bot.say('I AM AWOKEN.');
         }
     });
+    */
 /*
     controller.on('direct_message', async(bot, message) => {
         await bot.reply(message,'I heard a private message');
     });
     */
+  /*
     controller.hears('dm me', 'message', async(bot, message) => {
         await bot.startPrivateConversation(message.user);
         await bot.say(`Let's talk in private.`);
     });
-
+    */
     controller.on('direct_mention', async(bot, message) => {
         await bot.reply(message, `I heard a direct mention that said "${ message.text }"`);
     });
@@ -30,7 +32,7 @@ module.exports = function(controller) {
     controller.on('mention', async(bot, message) => {
         await bot.reply(message, `You mentioned me when you said "${ message.text }"`);
     });
-
+/*
     controller.hears('ephemeral', 'message,direct_message', async(bot, message) => {
         await bot.replyEphemeral(message,'This is an ephemeral reply sent using bot.replyEphemeral()!');
     });
@@ -193,5 +195,5 @@ module.exports = function(controller) {
     controller.on('dialog_cancellation', async (bot, message) => {
         await bot.reply(message, 'Got a dialog cancellation');
     });
-
+  */
 }
