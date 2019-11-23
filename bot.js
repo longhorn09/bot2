@@ -47,7 +47,7 @@ const adapter = new SlackAdapter({
     clientSigningSecret: process.env.CLIENT_SIGNING_SECRET,  
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    scopes: ['bot','files:write:user','files:read','commands'], //https://api.slack.com/scopes, do not include files:write, will get error
+  scopes: ['bot','files:write:user','files:read','commands','users:read','users:read.email'], //https://api.slack.com/scopes, do not include files:write, will get error
     redirectUri: process.env.REDIRECT_URI,
     getTokenForTeam: getTokenForTeam, //functions required for retrieving team-specific info, for use in multi-team apps
     getBotUserByTeam: getBotUserByTeam,
