@@ -11,3 +11,4 @@ npm-debug.log
 settings.json
 *.tmp
 file_created.json
+direct_msg.json
