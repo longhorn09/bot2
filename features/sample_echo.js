@@ -29,15 +29,14 @@ module.exports = function(controller) {
         console.log(`file for ${file_id} written`);
       }); 
 
-      console.log('right before bot.api.files.info() call');
-      bot.api.files.info({
+      let val = await bot.api.files.info({       // per @benbrown, "It's a promise"
          file: file_id
       }, (err,res) => {
-        console.log('in callback of files.info()');
-        console.log(res);
         if (err) {
           console.log(`Error encountered during files.list: ${err}`);
         }
+      }).then( (response) => {
+        console.log(JSON.stringify(value));
       });
     });  //end file_created handler
 
@@ -48,28 +47,54 @@ module.exports = function(controller) {
       channel_id = message['incoming_message']['channelData']['channel'];
       console.log(`** in files.list call from ${user_id} in channel ${channel_id}`);  
 
-      bot.api.files.list({       //https://api.slack.com/methods/files.list 
+      let val = await bot.api.files.list({       //https://api.slack.com/methods/files.list 
         token: process.env.OATH_ACCESS_TOKEN,
         page: 1
       }, function(err,res) {
-        console.log('in files.list callback');
-        console.log(JSON.stringify(res));
         if (err) {
           console.log(`Error encountered during files.list: ${err}`);
         }
-      });
-    });
+      }).then( (jsonObj) => {
+       //   console.log(res['ok']);
+          let sb = [];
+        
+          if (jsonObj.ok === true && jsonObj['files'].length > 0) {            
+            //for (let i = 0; i < jsonObj['files'].length;i++)
+            for (let i = 0 ; i < 2;i++)
+            {
+              sb.push(`${i}, id: ${jsonObj.files[i].id}, name: ${jsonObj.files[i].name} , type: ${jsonObj.files[i].filetype}, url_priv_dl: ${jsonObj.files[i]['url_private_download']}`);
 
-    controller.hears(/^\**testpdf\**\s*$/, ['message','direct_message'], async function(bot, message) {
-        let fileUploadName = 'testPDF.pdf';
-        let parentDir = path.normalize(__dirname+"/.."); //https://stackoverflow.com/questions/47403907/node-js-express-dirname-parent-path-get-wrong
+            }            
+            //console.log(sb.join('\n'));
+            let myval = bot.replyEphemeral(message,{
+              blocks: [
+              {
+                "type":"section",
+                "text":{
+                  "type":"mrkdwn",
+                  "text": "```" + sb.join('\n') + "```"
+                }
+              }]
+            }); //end bot.replyEphemeral
+          }
+          /*  fs.writeFile(__dirname + '/file_list.json',JSON.stringify(value),(err) => {
+              if (err) throw err;
+              console.log('file_list.json written');
+            }); */
+         }
+      );
+    }); //end of filelist handler
+
+    controller.hears(/^\**testxl\**\s*$/, ['message','direct_message'], async function(bot, message) {
+        let fileUploadName = 'testXL.xlsx';
+        let parentDir = path.normalize(__dirname+"/.."); 
         
         console.log(`${parentDir}/files/${fileUploadName} upload`); 
         bot.api.files.upload({
           file: fs.createReadStream(`${parentDir}/files/${fileUploadName}`),  //ie. multipart/form-data
           filename: fileUploadName,
-          filetype: "pdf",
- //         channels: message.channel
+          filetype: "xlsx",
+          channels: message.channel
         }, (err,res) => {
                console.log('in error handler');
                if (err) {
@@ -80,7 +105,29 @@ module.exports = function(controller) {
                  console.log(`response: ${res}`);
                }
         });
-    });  // end of testfile response handler
+    });  // end of testxl
+
+    controller.hears(/^\**testpdf\**\s*$/, ['message','direct_message'], async function(bot, message) {
+        let fileUploadName = 'testPDF.pdf';
+        let parentDir = path.normalize(__dirname+"/.."); //https://stackoverflow.com/questions/47403907/node-js-express-dirname-parent-path-get-wrong
+        
+        console.log(`${parentDir}/files/${fileUploadName} upload`); 
+        bot.api.files.upload({
+          file: fs.createReadStream(`${parentDir}/files/${fileUploadName}`),  //ie. multipart/form-data
+          filename: fileUploadName,
+          filetype: "pdf",
+          channels: message.channel
+        }, (err,res) => {
+               console.log('in error handler');
+               if (err) {
+                          console.log(`Failed to add file : ${err}`);
+                          bot.reply(message, `Sorry, there has been an error: ${err}`);
+               }
+               else {
+                 console.log(`response: ${res}`);
+               }
+        });
+    });  // end of testpdf
   
  
     //  myid RegEx
