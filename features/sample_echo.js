@@ -11,18 +11,39 @@ module.exports = function(controller) {
     var fs = require('fs');
     const path = require('path');
       
- 
-    // file_created event handler  
-    controller.on('file_created',  async function(bot, message) {
-      let user_id = null,
-          channel_id = null,
-          file_id=null;
+    //######################################################
+    // https://api.slack.com/events/file_deleted
+    //######################################################
+    controller.on('file_deleted',  async (bot, message) => {
+      let file_id=null;
 
       file_id = message['file_id'];
-      user_id = message['user_id'];
-      channel_id = message['channel'];
-      //
-      //console.log(`file: ${file_id}, user_id: ${user_id}, channel_id: ${channel_id}`);
+      console.log(`file: ${file_id}`);
+
+      fs.writeFile(__dirname + '/file_deleted.json',JSON.stringify(message), (err) => {
+        if (err) throw err;
+        console.log(`file for ${file_id} written`);
+      }); 
+
+      let val = await bot.api.chat.postMessage({       // "It's a promise"
+         token: process.env.BOT_TOKEN,
+         channel: 'UN8SXSVA5',
+         text: "file `" + file_id + "` deleted"
+      }, (err,res) => {
+        if (err) {
+          console.log(`Error encountered during files.list: ${err}`);
+        }
+      }).then( (response) => {
+      });
+    });  //end file_created handler
+ 
+    //######################################################
+    // file_created event handler  
+    //######################################################
+    controller.on('file_created',  async function(bot, message) {
+      let file_id = null;
+
+      file_id = message['file_id'];
 
       fs.writeFile(__dirname + '/file_created.json',JSON.stringify(message), (err) => {
         if (err) throw err;
@@ -36,16 +57,67 @@ module.exports = function(controller) {
           console.log(`Error encountered during files.list: ${err}`);
         }
       }).then( (response) => {
-        console.log(JSON.stringify(value));
+        console.log(JSON.stringify(response));
       });
     });  //end file_created handler
 
+    //######################################################
+    // Call of Slack API files.delete
+    // for cleanup of pdf, xlsx, and text files that were created during testing
+    //######################################################
+    controller.hears(/^\**filedel\**\s*$/, ['message','direct_message'], async function(bot, message) {
+      let user_id = null,channel_id=null;
+      user_id = message['incoming_message']['from']['id'];
+      channel_id = message['incoming_message']['channelData']['channel'];
+      //console.log(`** in files.list call from ${user_id} in channel ${channel_id}`);  
+
+      let val = await bot.api.files.list({       //https://api.slack.com/methods/files.list 
+        token: process.env.OATH_ACCESS_TOKEN,
+        page: 1
+      }, function(err,res) {
+        if (err) {
+          console.log(`Error encountered during files.list: ${err}`);
+        }
+      }).then( (jsonObj) => {
+       //   console.log(res['ok']);
+          let file_id=null;
+          if (jsonObj.ok === true && jsonObj['files'].length > 0) {            
+            //for (let i = 0; i < jsonObj['files'].length;i++)
+            //for (let i = 0 ; i < 5;i++)
+            console.log(`files in list: ${jsonObj['files'].length}`);
+            for (let i = (jsonObj['files'].length-1); i>=0;i--)  
+            {
+              //console.log(`id[${i}]: ${jsonObj.files[i].id}, name: ${jsonObj.files[i].name} , type: ${jsonObj.files[i].filetype}`);
+              if (jsonObj.files[i].filetype=='pdf' || jsonObj.files[i].filetype=='xlsx' || jsonObj.files[i].filetype=='text') {
+                file_id=jsonObj.files[i].id;
+                //console.log(`would delete: ${file_id}`);
+                console.log(`delete id: ${jsonObj.files[i].id}, name: ${jsonObj.files[i].name} , type: ${jsonObj.files[i].filetype}`);
+                let myval = bot.api.files.delete({
+                  token: process.env.BOT_TOKEN,
+                  file: file_id
+                },(err,res) => {
+                  if (err) {
+                    console.log(`${err.message}`);
+                  }
+                }).catch((err) => {
+                  console.log(err.message);
+                }); 
+              }
+            }            
+          }  //endif for jsonObj validity check
+      }).catch(err => {
+        console.log(`filelist error handler: ${err.message}`);
+      });
+    }); //end of file delete
+  
+    //######################################################
     // Call of Slack API files.list 
+    //######################################################
     controller.hears(/^\**filelist\**\s*$/, ['message','direct_message'], async function(bot, message) {
       let user_id = null,channel_id=null;
       user_id = message['incoming_message']['from']['id'];
       channel_id = message['incoming_message']['channelData']['channel'];
-      console.log(`** in files.list call from ${user_id} in channel ${channel_id}`);  
+      //console.log(`** in files.list call from ${user_id} in channel ${channel_id}`);  
 
       let val = await bot.api.files.list({       //https://api.slack.com/methods/files.list 
         token: process.env.OATH_ACCESS_TOKEN,
@@ -59,13 +131,11 @@ module.exports = function(controller) {
           let sb = [];
         
           if (jsonObj.ok === true && jsonObj['files'].length > 0) {            
-            //for (let i = 0; i < jsonObj['files'].length;i++)
-            for (let i = 0 ; i < 2;i++)
+            for (let i = 0; i < jsonObj['files'].length;i++)
+            //for (let i = 0 ; i < 5;i++)
             {
               sb.push(`${i}, id: ${jsonObj.files[i].id}, name: ${jsonObj.files[i].name} , type: ${jsonObj.files[i].filetype}, url_priv_dl: ${jsonObj.files[i]['url_private_download']}`);
-
             }            
-            //console.log(sb.join('\n'));
             let myval = bot.replyEphemeral(message,{
               blocks: [
               {
@@ -75,16 +145,18 @@ module.exports = function(controller) {
                   "text": "```" + sb.join('\n') + "```"
                 }
               }]
+            }).catch((err) => {
+              console.log(err.message);
             }); //end bot.replyEphemeral
-          }
-          /*  fs.writeFile(__dirname + '/file_list.json',JSON.stringify(value),(err) => {
-              if (err) throw err;
-              console.log('file_list.json written');
-            }); */
-         }
-      );
+          }  //endif for jsonObj validity check
+      }).catch(err => {
+        console.log(`filelist error handler: ${err.message}`);
+      });
     }); //end of filelist handler
 
+    //######################################################
+    // textxl, simple excel file test
+    //######################################################
     controller.hears(/^\**testxl\**\s*$/, ['message','direct_message'], async function(bot, message) {
         let fileUploadName = 'testXL.xlsx';
         let parentDir = path.normalize(__dirname+"/.."); 
@@ -107,6 +179,9 @@ module.exports = function(controller) {
         });
     });  // end of testxl
 
+    //######################################################
+    // testpdf, simple pdf file test
+    //######################################################
     controller.hears(/^\**testpdf\**\s*$/, ['message','direct_message'], async function(bot, message) {
         let fileUploadName = 'testPDF.pdf';
         let parentDir = path.normalize(__dirname+"/.."); //https://stackoverflow.com/questions/47403907/node-js-express-dirname-parent-path-get-wrong
@@ -129,8 +204,9 @@ module.exports = function(controller) {
         });
     });  // end of testpdf
   
- 
-    //  myid RegEx
+    //######################################################
+    // myid retrieves the user_id and channel of user invoking it
+    //######################################################
     controller.hears(/^\**myid\**\s*$/, ['message','direct_message'], async function(bot, message) {
       let user_id = null,channel_id=null;
 
@@ -158,9 +234,11 @@ module.exports = function(controller) {
         }
         ]
       });
-    });
-
-    //  Vendors RegEx
+    });  //end of controller.hears() for myid
+  
+    //######################################################
+    // Vendor(s) command 
+    //######################################################
     controller.hears(/^[vV][eE][nN][dD][oO][rR]([sS])?\s*$/, ['message','direct_message'], async function(bot, message) {
       await bot.replyEphemeral(message,{
         blocks: [
@@ -173,9 +251,11 @@ module.exports = function(controller) {
         }
         ]
       });
-    });
+    });  //end of controller.hears() for vendor
   
-    //  Help RegEx
+    //######################################################
+    // HELP command 
+    //######################################################
     controller.hears(/^[hH][eE][lL][pP]\s*$/, ['message','direct_message'], async function(bot, message) {
       await bot.replyEphemeral(message,{
         blocks: [
@@ -198,5 +278,6 @@ module.exports = function(controller) {
         }
         ]
       });
-    });
-}
+    }); //end of controller.hears() for help
+
+} //end of module.exports
