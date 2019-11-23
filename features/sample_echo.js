@@ -258,6 +258,10 @@ module.exports = function(controller) {
     // HELP command 
     //######################################################
     controller.hears(/^[hH][eE][lL][pP]\s*$/, ['message','direct_message'], async function(bot, message) {
+/*      fs.writeFile(__dirname + '/direct_msg.json',JSON.stringify(message),(err) => {
+        if (err) throw err;
+        console.log('file written');
+      }); */
       await bot.replyEphemeral(message,{
         blocks: [
         {
@@ -281,4 +285,51 @@ module.exports = function(controller) {
       });
     }); //end of controller.hears() for help
 
+    //######################################################
+    // idlookup command 
+    // https://api.slack.com/methods/users.lookupByEmail
+    // BOLDED:   *idlookup* *<mailto:norman@normstorm.com|norman@normstorm.com>*
+    // REGULAR: idlookup <mailto:norman@normstorm.com|norman@normstorm.com>
+    //######################################################
+      //regex pattern: idlookup <mailto:norman@normstorm.com|norman@normstorm.com>
+    //  controller.hears(/^\**idlookup\s+.*([0-9A-Za-z\-\.]+\@[A-Za-z]+\.com)\>\**$/, ['message','direct_message'], 
+    controller.hears(/^\**idlookup/, ['message','direct_message'], 
+                    async function(bot, message) {
+                      console.log(message.text);
+     //                 console.log(message.matches[0]);
+      //                console.log(message.matches[1]);
+                      
+      await bot.api.users.lookupByEmail({
+        token: process.env.BOT_TOKEN, 
+        email: "norman@normstorm.com"
+      }).then((res) =>{
+        let sb = [];
+        sb.push(`user_id  : ${res['user']['id']}`);
+        sb.push(`name     : ${res['user']['name']}`);
+        sb.push(`real_name: ${res['user']['real_name']}`);
+        sb.push(`email    : ${res['user']['profile']['email']}`);
+
+        console.log(sb.join('\n'));
+        /*
+        bot.replyEphemeral(message,{
+          blocks: [
+          {
+            "type":"section",
+            "text":{
+              "type":"mrkdwn",
+              "text": "```"+sb.join('\n')+"```"
+            }
+          }]
+        }); //end of replyEphemeral
+        */
+      }).catch((err) => {
+        if (err) {
+          console.log(err.message);
+        }
+      });
+
+    }); //end of controller.hears() for help
 } //end of module.exports
+
+
+// await bot.startConversationWithUser(user); //https://botkit.ai/docs/v4/core.html
