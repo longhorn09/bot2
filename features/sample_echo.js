@@ -295,39 +295,67 @@ module.exports = function(controller) {
     //  controller.hears(/^\**idlookup\s+.*([0-9A-Za-z\-\.]+\@[A-Za-z]+\.com)\>\**$/, ['message','direct_message'], 
     controller.hears(/^\**idlookup/, ['message','direct_message'], 
                     async function(bot, message) {
-                      console.log(message.text);
-     //                 console.log(message.matches[0]);
-      //                console.log(message.matches[1]);
-                      
-      await bot.api.users.lookupByEmail({
-        token: process.env.BOT_TOKEN, 
-        email: "norman@normstorm.com"
-      }).then((res) =>{
-        let sb = [];
-        sb.push(`user_id  : ${res['user']['id']}`);
-        sb.push(`name     : ${res['user']['name']}`);
-        sb.push(`real_name: ${res['user']['real_name']}`);
-        sb.push(`email    : ${res['user']['profile']['email']}`);
+      let regex= /^\**idlookup\**\s+.+\|([0-9A-Za-z\-\.]+@[A-Za-z]+\.com)\**/;
+      let results = message.text.match(regex);
+      let parsedEmail = null;
+      if (results) {
+        parsedEmail = results[1];
+        console.log(`parsedEmail: ${parsedEmail}`);
+        await bot.api.users.lookupByEmail({
+          token: process.env.BOT_TOKEN, 
+          email: parsedEmail 
+        }).then((res) =>{
+          let sb = [];
+          sb.push(`user_id  : ${res['user']['id']}`);
+          sb.push(`name     : ${res['user']['name']}`);
+          sb.push(`real_name: ${res['user']['real_name']}`);
+          sb.push(`email    : ${res['user']['profile']['email']}`);
 
-        console.log(sb.join('\n'));
-        /*
-        bot.replyEphemeral(message,{
+          console.log(sb.join('\n'));
+          
+          bot.replyEphemeral(message,{
+            blocks: [
+            {
+              "type":"section",
+              "text":{
+                "type":"mrkdwn",
+                "text": "```" + sb.join('\n') + "```"
+              }
+            }]
+          }).catch((err) =>{
+            if (err) {
+              console.log(err.message);
+            }
+          }); //end of replyEphemeral
+         
+        }).catch((err) => {
+          if (err) {
+            bot.replyEphemeral(message,{
+              blocks: [
+              {
+                "type":"section",
+                "text":{
+                  "type":"mrkdwn",
+                  "text": "*Error:* `" + err['data']['error']+ "`"
+                }
+              }]
+            });
+          }
+        }); //end await
+      }
+      // let user know what proper syntax is
+      else {
+        await bot.replyEphemeral(message,{
           blocks: [
           {
             "type":"section",
             "text":{
               "type":"mrkdwn",
-              "text": "```"+sb.join('\n')+"```"
+              "text": "*Syntax:*  `idlookup username@domain.com`"
             }
           }]
-        }); //end of replyEphemeral
-        */
-      }).catch((err) => {
-        if (err) {
-          console.log(err.message);
-        }
-      });
-
+        });
+      }
     }); //end of controller.hears() for help
 } //end of module.exports
 
