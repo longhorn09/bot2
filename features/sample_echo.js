@@ -20,20 +20,21 @@ module.exports = function(controller) {
       file_id = message['file_id'];
       console.log(`file: ${file_id}`);
 
+      /*
       fs.writeFile(__dirname + '/file_deleted.json',JSON.stringify(message), (err) => {
         if (err) throw err;
-        console.log(`file for ${file_id} written`);
+        console.log(`file_deleted.json for ${file_id} written`);
       }); 
+      */
 
       let val = await bot.api.chat.postMessage({       // "It's a promise"
          token: process.env.BOT_TOKEN,
-         channel: 'UN8SXSVA5',
+         channel: 'UN8SXSVA5',  //harded user_id for me (developer)
          text: "file `" + file_id + "` deleted"
       }, (err,res) => {
         if (err) {
-          console.log(`Error encountered during files.list: ${err}`);
+          console.log(`Error encountered during bot.api.chat.postMessage: ${err}`);
         }
-      }).then( (response) => {
       });
     });  //end file_created handler
  
